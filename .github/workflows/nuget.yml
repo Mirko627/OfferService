@@ -1,0 +1,32 @@
+name: NuGet
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore
+      run: dotnet restore OfferService.sln
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore OfferService.sln
+
+    - name: Pack
+      run: dotnet pack --configuration Release --no-restore OfferService.sln
+
+    - name: Push to GitHub Packages
+      run: |
+        dotnet nuget push "**/bin/Release/*.nupkg" \
+          --api-key ${{ secrets.MIRKO_NUGET_PWD }} \
+          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+          --skip-duplicate
