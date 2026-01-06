@@ -14,12 +14,17 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-
     - name: Restore
       run: dotnet restore OfferService.sln
+      env:
+        MIRKO_NUGET_USERNAME: ${{ github.actor }}
+        MIRKO_NUGET_PWD: ${{ secrets.GITHUB_TOKEN }} # Oppure ${{ secrets.MIRKO_NUGET_PWD }}
 
     - name: Build
       run: dotnet build --configuration Release --no-restore OfferService.sln
+      env:
+        MIRKO_NUGET_USERNAME: ${{ github.actor }}
+        MIRKO_NUGET_PWD: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Pack
       run: dotnet pack --configuration Release --no-restore OfferService.sln
