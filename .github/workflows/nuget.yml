@@ -1,7 +1,9 @@
 name: NuGet
+
 on:
   push:
-    tags: [ "v*" ]
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
@@ -11,31 +13,31 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      MIRKO_NUGET_USERNAME: ${{ secrets.MIRKO_NUGET_USERNAME }}
+      MIRKO_NUGET_PWD: ${{ secrets.MIRKO_NUGET_PWD }}
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-    - name: Restore
-      run: dotnet restore OfferService.sln
-      env:
-        MIRKO_NUGET_USERNAME: ${{ github.actor }}
-        MIRKO_NUGET_PWD: ${{ secrets.GITHUB_TOKEN }} # Oppure ${{ secrets.MIRKO_NUGET_PWD }}
+      - uses: actions/checkout@v4
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore OfferService.sln
-      env:
-        MIRKO_NUGET_USERNAME: ${{ github.actor }}
-        MIRKO_NUGET_PWD: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
-    - name: Pack
-      run: dotnet pack --configuration Release --no-restore OfferService.sln
+      - name: Restore
+        run: dotnet restore OfferService.sln
 
-    - name: Push to GitHub Packages
-      run: |
-        dotnet nuget push "**/bin/Release/*.nupkg" \
-          --api-key ${{ secrets.MIRKO_NUGET_PWD }} \
-          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-          --skip-duplicate
+      - name: Build
+        run: dotnet build OfferService.sln --configuration Release --no-restore
+
+      - name: Pack
+        run: dotnet pack OfferService.sln --configuration Release --no-build
+
+      - name: Push to GitHub Packages
+        run: |
+          dotnet nuget push "**/bin/Release/*.nupkg" \
+            --api-key ${{ secrets.MIRKO_NUGET_PWD }} \
+            --source "https://nuget.pkg.github.com/Mirko627/index.json" \
+            --skip-duplicate
