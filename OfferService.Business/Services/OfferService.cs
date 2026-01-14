@@ -6,7 +6,6 @@ using OfferService.Shared.dtos;
 using OfferService.Shared.enums;
 using PropertyService.ClientHttp.Interfaces;
 using PropertyService.Shared.dtos;
-using System;
 
 namespace OfferService.Business.Services
 {
@@ -25,10 +24,9 @@ namespace OfferService.Business.Services
 
         public async Task AddAsync(CreateOfferDto offerDto, int userId)
         {
-            PropertyDto? p = await propertyClient.GetByIdAsync(offerDto.PropertyId);
-            if (p == null) throw new Exception("Immobile non esistente");
-            if (p.Status == PropertyService.Shared.enums.PropertyStatus.Sold) throw new Exception("L'immobile è già stato venduto");
-            if (p.OwnerId == userId) throw new Exception("Non è possibile fare un offerta per una propria proprietà");
+            PropertyDto p = await propertyClient.GetByIdAsync(offerDto.PropertyId) ?? throw new KeyNotFoundException($"Proprietà con ID {offerDto.PropertyId} non trovata.");
+            if (p.Status == PropertyService.Shared.enums.PropertyStatus.Sold) throw new InvalidOperationException("La proprietà non è più disponibile");
+            if (p.OwnerId == userId) throw new InvalidOperationException("Non è possibile fare un offerta per una propria proprietà");
             Offer o = mapper.Map<Offer>(offerDto);
             o.OfferId = userId;
             o.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
@@ -37,8 +35,10 @@ namespace OfferService.Business.Services
             await repository.AddAsync(o);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int userId)
         {
+            Offer o = await repository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Offerta con ID {id} non trovata.");
+            if(o.OfferId != userId) throw new UnauthorizedAccessException("Non hai i permessi per eliminare questa offerta.");
             await repository.DeleteAsync(id);
         }
 
@@ -53,34 +53,29 @@ namespace OfferService.Business.Services
             return offerDtos;
         }
 
-        public async Task<OfferDto?> GetByIdAsync(int id)
+        public async Task<OfferDto> GetByIdAsync(int id)
         {
-            Offer? offer = await repository.GetByIdAsync(id);
-            if (offer != null)
-                await CheckExpired(offer);
-            OfferDto? offerDto = mapper.Map<OfferDto>(offer);
+            Offer o = await repository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Offerta con ID {id} non trovata.");
+            OfferDto? offerDto = mapper.Map<OfferDto>(o);
             return offerDto;
         }
 
-        public async Task UpdateAsync(int id, UpdateOfferDto offerDto)
+        public async Task UpdateAsync(int id, UpdateOfferDto offerDto, int userId)
         {
-            Offer? offer = await repository.GetByIdAsync(id);
-            if (offer == null)
-                throw new Exception("Offerta non trovata");
-            await CheckExpired(offer);
-            mapper.Map(offerDto, offer);
-            await repository.UpdateAsync(offer);
+            Offer o = await repository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Offerta con ID {id} non trovata.");
+            if (o.OfferId != userId) throw new UnauthorizedAccessException("Non hai i permessi per modificare questa offerta.");
+            await CheckExpired(o);
+            mapper.Map(offerDto, o);
+            await repository.UpdateAsync(o);
         }
         public async Task AcceptOfferAsync(int offerId, int userId)
         {
-            Offer? o = await repository.GetByIdAsync(offerId);
-            if (o == null) throw new Exception("Offerta non trovata");
+            Offer o = await repository.GetByIdAsync(offerId) ?? throw new KeyNotFoundException($"Offerta con ID {offerId} non trovata.");
             await CheckExpired(o);
-            PropertyDto? property = await propertyClient.GetByIdAsync(o.PropertyId);
-            if (property == null) throw new Exception("Immobile non esistente");
-            if (property.OwnerId != userId) throw new UnauthorizedAccessException("L'attuale utente non e' il proprietario");
-            if (property.Status == PropertyService.Shared.enums.PropertyStatus.Sold) throw new Exception("L'immobile non e' più disponibile");
-            if (o.Status != OfferStatus.Pending) throw new Exception("L'offerta non e' più valida");
+            PropertyDto property = await propertyClient.GetByIdAsync(o.PropertyId) ?? throw new KeyNotFoundException($"Proprietà con ID {o.PropertyId} non trovata.");
+            if (property.OwnerId != userId) throw new UnauthorizedAccessException("Non hai i permessi per modificare questa offerta.");
+            if (property.Status == PropertyService.Shared.enums.PropertyStatus.Sold) throw new InvalidOperationException("La proprietà non è più disponibile");
+            if (o.Status != OfferStatus.Pending) throw new InvalidOperationException("L'offerta non è più disponibile");
             o.Status = OfferStatus.Accepted;
             await repository.UpdateAsync(o);
             List<Offer> otherOffers = await repository.GetOtherOffersByPropertyAsync(o.PropertyId, o.Id);
@@ -95,25 +90,12 @@ namespace OfferService.Business.Services
         }
         public async Task RejectOfferAsync(int offerId, int userId)
         {
-            Offer? o = await repository.GetByIdAsync(offerId);
-            if (o == null) throw new Exception("Offerta non trovata");
+            Offer o = await repository.GetByIdAsync(offerId) ?? throw new KeyNotFoundException($"Offerta con ID {offerId} non trovata.");
             await CheckExpired(o);
-            PropertyDto? property = await propertyClient.GetByIdAsync(o.PropertyId);
-            if (property == null) throw new Exception("Immobile non esistente");
-            if (property.OwnerId != userId) throw new UnauthorizedAccessException("L'attuale utente non e' il proprietario");
+            PropertyDto property = await propertyClient.GetByIdAsync(o.PropertyId) ?? throw new KeyNotFoundException($"Proprietà con ID {o.PropertyId} non trovata.");
+            if (property.OwnerId != userId) throw new UnauthorizedAccessException("Non hai i permessi per modificare questa offerta.");
             o.Status = OfferStatus.Rejected;
             await repository.UpdateAsync(o);
-        }
-        public async Task CancelOfferAsync(int offerId, int userId)
-        {
-            Offer? o = await repository.GetByIdAsync(offerId);
-            if (o == null) throw new Exception("Offerta non trovata");
-            await CheckExpired(o);
-            if (o.OfferId != userId)
-                throw new UnauthorizedAccessException("Non puoi ritirare un'offerta non tua.");
-            if (o.Status != OfferStatus.Pending)
-                throw new InvalidOperationException("Non puoi ritirare un'offerta già elaborata.");
-            await repository.DeleteAsync(offerId);
         }
         private async Task CheckExpired(Offer o)
         {

@@ -29,100 +29,47 @@ namespace OfferService.API.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var offer = await _offerService.GetByIdAsync(id);
-            if (offer == null)
-                return NotFound(new { message = "Offerta non trovata" });
-
             return Ok(offer);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateOfferDto dto)
         {
-            try
-            {
-                var userId = GetUserIdFromClaims();
-                await _offerService.AddAsync(dto, userId);
-                return StatusCode(201);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromClaims();
+            await _offerService.AddAsync(dto, userId);
+            return Created();
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateOfferDto dto)
         {
-            try
-            {
-                await _offerService.UpdateAsync(id, dto);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromClaims();
+            await _offerService.UpdateAsync(id, dto, userId);
+            return Ok((new { message = "Offerta aggiornata con successo" }));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                var userId = GetUserIdFromClaims();
-                await _offerService.CancelOfferAsync(id, userId);
-                return NoContent();
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromClaims();
+            await _offerService.DeleteAsync(id, userId);
+            return Ok((new { message = "Offerta eliminata con successo" }));
         }
 
         [HttpPatch("{id}/accept")]
         public async Task<IActionResult> Accept(int id)
         {
-            try
-            {
-                var userId = GetUserIdFromClaims();
-                await _offerService.AcceptOfferAsync(id, userId);
-                return Ok(new { message = "Offerta accettata con successo" });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromClaims();
+            await _offerService.AcceptOfferAsync(id, userId);
+            return Ok(new { message = "Offerta accettata con successo" });
         }
 
         [HttpPatch("{id}/reject")]
         public async Task<IActionResult> Reject(int id)
         {
-            try
-            {
-                var userId = GetUserIdFromClaims();
-                await _offerService.RejectOfferAsync(id, userId);
-                return Ok(new { message = "Offerta rifiutata" });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var userId = GetUserIdFromClaims();
+            await _offerService.RejectOfferAsync(id, userId);
+            return Ok(new { message = "Offerta rifiutata con successo" });
         }
 
         private int GetUserIdFromClaims()

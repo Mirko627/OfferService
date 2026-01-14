@@ -24,11 +24,12 @@ if (string.IsNullOrEmpty(propertyServiceUrl))
     throw new Exception("L'URL di PropertyService non è configurato nel file appsettings.json");
 }
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IPropertyClient, PropertyClient>(client =>
 {
     client.BaseAddress = new Uri(propertyServiceUrl);
 });
-// AutoMapper
+
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<OfferMapper>();
@@ -47,14 +48,15 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "UserService", // Deve corrispondere a quello del token
-        ValidAudience = "ProjectMicroservizi", // Deve corrispondere
+        ValidIssuer = "UserService",
+        ValidAudience = "ProjectMicroservizi",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("b133a0c0e9bee3be20163d2ad31d6248db292aa6dcb1ee087a2aa50e0fc75ae2"))
     };
 });
 // Services e repository
 builder.Services.AddScoped<IOfferService, OfferService.Business.Services.OfferService>();
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
+
 
 // Controllers
 builder.Services.AddControllers();

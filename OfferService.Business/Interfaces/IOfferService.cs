@@ -4,13 +4,12 @@ namespace OfferService.Business.Interfaces
 {
     public interface IOfferService
     {
-        public Task<List<OfferDto>> GetAllAsync();
-        public Task<OfferDto?> GetByIdAsync(int id);
-        public Task AddAsync(CreateOfferDto offerDto, int userId);
-        public Task UpdateAsync(int id, UpdateOfferDto offerDto);
-        public Task DeleteAsync(int id);
-        public Task AcceptOfferAsync(int offerId, int userId);
-        public Task RejectOfferAsync(int offerId, int userId);
-        public Task CancelOfferAsync(int offerId, int userId);
+        Task<List<OfferDto>> GetAllAsync();
+        Task<OfferDto> GetByIdAsync(int id);
+        Task AddAsync(CreateOfferDto offerDto, int userId);
+        Task UpdateAsync(int id, UpdateOfferDto offerDto, int userId);
+        Task DeleteAsync(int id, int userId);
+        Task AcceptOfferAsync(int offerId, int userId);
+        Task RejectOfferAsync(int offerId, int userId);
     }
 }
