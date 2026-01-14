@@ -25,15 +25,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-
-      - name: Authenticate GitHub NuGet
-        run: |
-          dotnet nuget remove source github || echo "Source not found, continuing"
-          dotnet nuget add source "https://nuget.pkg.github.com/Mirko627/index.json" \
-            -n github \
-            -u $MIRKO_NUGET_USERNAME \
-            -p $MIRKO_NUGET_PWD \
-            --store-password-in-clear-text
+          source-url: https://nuget.pkg.github.com/Mirko627/index.json
 
       - name: Restore
         run: dotnet restore OfferService.sln
