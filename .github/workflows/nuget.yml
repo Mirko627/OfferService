@@ -25,7 +25,14 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-          source-url: https://nuget.pkg.github.com/Mirko627/index.json
+
+      - name: Authenticate GitHub NuGet
+        run: |
+          dotnet nuget add source "https://nuget.pkg.github.com/Mirko627/index.json" \
+            -n github \
+            -u $MIRKO_NUGET_USERNAME \
+            -p $MIRKO_NUGET_PWD \
+            --store-password-in-clear-text
 
       - name: Restore
         run: dotnet restore OfferService.sln
@@ -39,6 +46,6 @@ jobs:
       - name: Push to GitHub Packages
         run: |
           dotnet nuget push "**/bin/Release/*.nupkg" \
-            --api-key ${{ secrets.MIRKO_NUGET_PWD }} \
+            --api-key $MIRKO_NUGET_PWD \
             --source "https://nuget.pkg.github.com/Mirko627/index.json" \
             --skip-duplicate
