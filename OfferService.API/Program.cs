@@ -21,7 +21,7 @@ string? propertyServiceUrl = builder.Configuration["ExternalServices:PropertySer
 
 if (string.IsNullOrEmpty(propertyServiceUrl))
 {
-    throw new Exception("L'URL di PropertyService non è configurato nel file appsettings.json");
+    throw new Exception("L'URL di PropertyService non ï¿½ configurato nel file appsettings.json");
 }
 
 builder.Services.AddHttpContextAccessor();
@@ -95,7 +95,27 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<OfferDBContext>();
 
+    var retries = 10;
+    while (retries > 0)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch (Exception ex)
+        {
+            retries--;
+            Console.WriteLine($"Retrying DB migration. Attempts left: {retries}. Error: {ex.Message}");
+            Thread.Sleep(5000);
+        }
+
+    }
+}
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

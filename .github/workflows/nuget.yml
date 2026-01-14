@@ -25,6 +25,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+          source-url: https://nuget.pkg.github.com/Mirko627/index.json
 
       - name: Restore
         run: dotnet restore OfferService.sln
