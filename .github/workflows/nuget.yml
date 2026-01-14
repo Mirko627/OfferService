@@ -28,6 +28,7 @@ jobs:
 
       - name: Authenticate GitHub NuGet
         run: |
+          dotnet nuget remove source github || echo "Source not found, continuing"
           dotnet nuget add source "https://nuget.pkg.github.com/Mirko627/index.json" \
             -n github \
             -u $MIRKO_NUGET_USERNAME \
@@ -46,6 +47,6 @@ jobs:
       - name: Push to GitHub Packages
         run: |
           dotnet nuget push "**/bin/Release/*.nupkg" \
-            --api-key $MIRKO_NUGET_PWD \
+            --api-key ${{ secrets.MIRKO_NUGET_PWD }} \
             --source "https://nuget.pkg.github.com/Mirko627/index.json" \
             --skip-duplicate
