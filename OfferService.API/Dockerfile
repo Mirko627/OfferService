@@ -3,10 +3,6 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG MIRKO_NUGET_USERNAME
 ARG MIRKO_NUGET_PWD
 
-# Passo le credenziali come env vars
-ENV NUGET_USERNAME=$MIRKO_NUGET_USERNAME
-ENV NUGET_PASSWORD=$MIRKO_NUGET_PWD
-
 WORKDIR /src
 
 # Copio NuGet.config (che contiene già le variabili NUGET_USERNAME e NUGET_PASSWORD)
