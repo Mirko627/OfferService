@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.0.0" />
-    <PackageReference Include="Mirko.PropertyService.ClientHttp" Version="1.0.3" />
+    <PackageReference Include="Mirko.PropertyService.ClientHttp" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
