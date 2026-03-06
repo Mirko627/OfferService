@@ -1,0 +1,44 @@
+name: NuGet
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      MIRKO_NUGET_USERNAME: ${{ secrets.MIRKO_NUGET_USERNAME }}
+      MIRKO_NUGET_PWD: ${{ secrets.MIRKO_NUGET_PWD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          source-url: https://nuget.pkg.github.com/Mirko627/index.json
+
+      - name: Restore
+        run: dotnet restore OfferService.sln
+
+      - name: Build
+        run: dotnet build OfferService.sln --configuration Release --no-restore
+
+      - name: Pack
+        run: dotnet pack OfferService.sln --configuration Release --no-build
+
+      - name: Push to GitHub Packages
+        run: |
+          dotnet nuget push "**/bin/Release/*.nupkg" \
+            --api-key ${{ secrets.MIRKO_NUGET_PWD }} \
+            --source "https://nuget.pkg.github.com/Mirko627/index.json" \
+            --skip-duplicate
