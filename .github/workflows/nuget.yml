@@ -4,22 +4,23 @@ on:
   push:
     tags:
       - "v*"
+
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: read
+  packages: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     env:
-      MIRKO_NUGET_USERNAME: ${{ secrets.MIRKO_NUGET_USERNAME }}
-      MIRKO_NUGET_PWD: ${{ secrets.MIRKO_NUGET_PWD }}
+      NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -36,9 +37,8 @@ jobs:
       - name: Pack
         run: dotnet pack OfferService.sln --configuration Release --no-build
 
-      - name: Push to GitHub Packages
+      - name: Push packages to GitHub Packages
         run: |
           dotnet nuget push "**/bin/Release/*.nupkg" \
-            --api-key ${{ secrets.MIRKO_NUGET_PWD }} \
             --source "https://nuget.pkg.github.com/Mirko627/index.json" \
             --skip-duplicate
