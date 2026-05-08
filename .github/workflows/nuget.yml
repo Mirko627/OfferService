@@ -29,13 +29,13 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore
-        run: dotnet restore OfferService.sln
+        run: dotnet restore
 
       - name: Build
-        run: dotnet build OfferService.sln --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore
 
       - name: Pack
-        run: dotnet pack OfferService.sln --configuration Release --no-build
+        run: dotnet pack --configuration Release --no-build
 
       - name: Push packages to GitHub Packages
         run: |
