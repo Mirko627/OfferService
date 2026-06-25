@@ -147,8 +147,10 @@ L'Offer Service utilizza il Property Service per:
 * recuperare il proprietario dell'immobile
 * impedire offerte su immobili venduti
 * impedire offerte sui propri immobili
+* 
+### Kafka
 
-### Eventi Kafka pubblicati
+#### Eventi Kafka pubblicati
 
 | Topic        | Evento        | Descrizione                                |
 | ------------ | ------------- | ------------------------------------------ |
