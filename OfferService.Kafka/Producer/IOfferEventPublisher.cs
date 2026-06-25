@@ -1,5 +1,4 @@
 ﻿using OfferService.Kafka.Contracts;
-using OfferService.Repository.Entities;
 
 namespace OfferService.Business.Interfaces
 {
