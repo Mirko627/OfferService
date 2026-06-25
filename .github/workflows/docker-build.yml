@@ -1,5 +1,3 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-
 name: Docker
 
 on:
@@ -20,36 +18,10 @@ jobs:
       packages: write
 
     steps:
-      # =========================
-      # 1. Checkout
-      # =========================
       - name: Checkout
         uses: actions/checkout@v4
 
-      # =========================
-      # 2. Setup .NET (IMPORTANTE per restore in Docker build)
-      # =========================
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
-
-      # =========================
-      # 3. NuGet auth (IDEMPOTENTE FIX)
-      # =========================
-      - name: Setup NuGet source (GitHub Packages)
-        run: |
-          dotnet nuget remove source github || true
-
-          dotnet nuget add source https://nuget.pkg.github.com/Mirko627/index.json \
-            --name github \
-            --username ${{ secrets.MIRKO_NUGET_USERNAME }} \
-            --password ${{ secrets.MIRKO_NUGET_PWD }} \
-            --store-password-in-clear-text
-
-      # =========================
-      # 4. Login GHCR
-      # =========================
+      # Login GHCR
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -57,9 +29,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # =========================
-      # 5. Metadata immagini
-      # =========================
+      # Extract metadata
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -70,9 +40,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
 
-      # =========================
-      # 6. Build & Push Docker
-      # =========================
+      # Build + Push Docker
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
