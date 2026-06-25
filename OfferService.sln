@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36811.4 d17.14
+VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfferService.Repository", "OfferService.Repository\OfferService.Repository.csproj", "{6823B3BB-0921-4278-AE6B-9254CDA8485A}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfferService.ClientHttp", "OfferService.ClientHttp\OfferService.ClientHttp.csproj", "{D3BD164F-D99A-4106-861E-CADDA6B455D7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfferService.API", "OfferService.API\OfferService.API.csproj", "{698F2D08-3BCC-4805-B13F-311B5BB50BFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfferService.Kafka", "OfferService.Kafka\OfferService.Kafka.csproj", "{3BCE7053-E7B1-496A-B60B-92315D10DA34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{698F2D08-3BCC-4805-B13F-311B5BB50BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{698F2D08-3BCC-4805-B13F-311B5BB50BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{698F2D08-3BCC-4805-B13F-311B5BB50BFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BCE7053-E7B1-496A-B60B-92315D10DA34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BCE7053-E7B1-496A-B60B-92315D10DA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BCE7053-E7B1-496A-B60B-92315D10DA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BCE7053-E7B1-496A-B60B-92315D10DA34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

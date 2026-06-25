@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using OfferService.Business.Interfaces;
+using OfferService.Kafka.Contracts;
 using OfferService.Repository.Entities;
 using OfferService.Repository.Interfaces;
 using OfferService.Shared.dtos;
@@ -13,13 +14,15 @@ namespace OfferService.Business.Services
     {
         private readonly IOfferRepository repository;
         private readonly IPropertyClient propertyClient;
+        private readonly IOfferEventPublisher eventPublisher;
         private readonly IMapper mapper;
 
-        public OfferService(IOfferRepository repository, IMapper mapper, IPropertyClient propertyClient)
+        public OfferService(IOfferRepository repository, IMapper mapper, IPropertyClient propertyClient, IOfferEventPublisher eventPublisher)
         {
             this.repository = repository;
             this.mapper = mapper;
             this.propertyClient = propertyClient;
+            this.eventPublisher = eventPublisher;
         }
 
         public async Task AddAsync(CreateOfferDto offerDto, int userId)
@@ -33,6 +36,9 @@ namespace OfferService.Business.Services
             o.ExpirateDate = (DateOnly.FromDateTime(DateTime.Now)).AddDays(30);
             o.Status = OfferStatus.Pending;
             await repository.AddAsync(o);
+
+            OfferCreatedDto offerCreatedDto = mapper.Map<OfferCreatedDto>(o);
+            await eventPublisher.OfferCreatedAsync(offerCreatedDto);
         }
 
         public async Task DeleteAsync(int id, int userId)
@@ -40,6 +46,9 @@ namespace OfferService.Business.Services
             Offer o = await repository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Offerta con ID {id} non trovata.");
             if(o.OfferId != userId) throw new UnauthorizedAccessException("Non hai i permessi per eliminare questa offerta.");
             await repository.DeleteAsync(id);
+
+            OfferCancelledDto offerCancelledDto = mapper.Map<OfferCancelledDto>(o);
+            await eventPublisher.OfferCancelledAsync(offerCancelledDto);
         }
 
         public async Task<List<OfferDto>> GetAllAsync()
@@ -67,6 +76,9 @@ namespace OfferService.Business.Services
             await CheckExpired(o);
             mapper.Map(offerDto, o);
             await repository.UpdateAsync(o);
+
+            OfferUpdatedDto offerUpdatedDto = mapper.Map<OfferUpdatedDto>(o);
+            await eventPublisher.OfferUpdatedAsync(offerUpdatedDto);
         }
         public async Task AcceptOfferAsync(int offerId, int userId)
         {
@@ -87,6 +99,9 @@ namespace OfferService.Business.Services
                     await repository.UpdateAsync(other);
                 }
             }
+
+            OfferAcceptedDto offerAcceptedDto = mapper.Map<OfferAcceptedDto>(o);
+            await eventPublisher.OfferAcceptedAsync(offerAcceptedDto);
         }
         public async Task RejectOfferAsync(int offerId, int userId)
         {
@@ -96,6 +111,9 @@ namespace OfferService.Business.Services
             if (property.OwnerId != userId) throw new UnauthorizedAccessException("Non hai i permessi per modificare questa offerta.");
             o.Status = OfferStatus.Rejected;
             await repository.UpdateAsync(o);
+
+            OfferRejectedDto offerRejectedDto = mapper.Map<OfferRejectedDto>(o);
+            await eventPublisher.OfferRejectedAsync(offerRejectedDto);
         }
         private async Task CheckExpired(Offer o)
         {

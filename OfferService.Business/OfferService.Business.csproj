@@ -9,11 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.0.0" />
+    <PackageReference Include="AutoMapper" Version="15.1.3" />
     <PackageReference Include="Mirko.PropertyService.ClientHttp" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OfferService.Kafka\OfferService.Kafka.csproj" />
     <ProjectReference Include="..\OfferService.Repository\OfferService.Repository.csproj" />
   </ItemGroup>
 
