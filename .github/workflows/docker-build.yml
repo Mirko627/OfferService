@@ -1,5 +1,3 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-
 name: Docker
 
 on:
@@ -20,37 +18,10 @@ jobs:
       packages: write
 
     steps:
-      # =========================
-      # 1. Checkout
-      # =========================
       - name: Checkout
         uses: actions/checkout@v4
 
-      # =========================
-      # 2. Create NuGet config (AUTH per GitHub Packages)
-      # =========================
-      - name: Create NuGet config
-        run: |
-          cat <<EOF > NuGet.config
-          <?xml version="1.0" encoding="utf-8"?>
-          <configuration>
-            <packageSources>
-              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-              <add key="github" value="https://nuget.pkg.github.com/Mirko627/index.json" />
-            </packageSources>
-
-            <packageSourceCredentials>
-              <github>
-                <add key="Username" value="${{ secrets.MIRKO_NUGET_USERNAME }}" />
-                <add key="ClearTextPassword" value="${{ secrets.MIRKO_NUGET_PWD }}" />
-              </github>
-            </packageSourceCredentials>
-          </configuration>
-          EOF
-
-      # =========================
-      # 3. Login GHCR
-      # =========================
+      # Login GHCR
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -58,9 +29,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # =========================
-      # 4. Metadata Docker image
-      # =========================
+      # Extract metadata
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -71,16 +40,12 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
 
-      # =========================
-      # 5. Build & Push Docker image
-      # =========================
+      # Build + Push Docker
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: OfferService.API/Dockerfile
           push: true
-          build-args: |
-            NUGET_CONFIG=NuGet.config
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
