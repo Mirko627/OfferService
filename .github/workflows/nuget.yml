@@ -31,10 +31,12 @@ jobs:
           dotnet-version: '9.0.x'
 
       # =========================
-      # Auth NuGet
+      # AUTH NuGet (GitHub Packages)
       # =========================
-      - name: Setup NuGet source (GitHub Packages)
+      - name: Setup NuGet source
         run: |
+          dotnet nuget remove source github || true
+
           dotnet nuget add source https://nuget.pkg.github.com/Mirko627/index.json \
             --name github \
             --username ${{ secrets.MIRKO_NUGET_USERNAME }} \
@@ -42,27 +44,27 @@ jobs:
             --store-password-in-clear-text
 
       # =========================
-      # Restore
+      # RESTORE
       # =========================
       - name: Restore
         run: dotnet restore
 
       # =========================
-      # Build
+      # BUILD
       # =========================
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
       # =========================
-      # Pack
+      # PACK
       # =========================
       - name: Pack
         run: dotnet pack --configuration Release --no-build
 
       # =========================
-      # Push packages
+      # PUSH (GitHub Packages)
       # =========================
-      - name: Push packages to GitHub Packages
+      - name: Push packages
         run: |
           dotnet nuget push "**/bin/Release/*.nupkg" \
             --source "github" \
