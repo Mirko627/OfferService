@@ -6,10 +6,14 @@ using OfferService.Business.Interfaces;
 using OfferService.Business.Mappers;
 using OfferService.Data.Context;
 using OfferService.Data.Repositories;
+using OfferService.Kafka.Producer;
+using OfferService.Kafka.Topics;
 using OfferService.Repository.Interfaces;
 using PropertyService.ClientHttp.Clients;
 using PropertyService.ClientHttp.Interfaces;
 using System.Text;
+using Utility.Kafka.Abstractions.Clients;
+using Utility.Kafka.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +57,14 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("b133a0c0e9bee3be20163d2ad31d6248db292aa6dcb1ee087a2aa50e0fc75ae2"))
     };
 });
+
+// Kafka
+builder.Services.Configure<KafkaProducerClientOptions>(
+    builder.Configuration.GetSection("Kafka"));
+
+builder.Services.AddSingleton<IProducerClient<string, string>, ProducerClient>();
+builder.Services.AddScoped<IOfferEventPublisher, OfferEventPublisher>();
+
 // Services e repository
 builder.Services.AddScoped<IOfferService, OfferService.Business.Services.OfferService>();
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();

@@ -30,9 +30,9 @@ namespace OfferService.Kafka.Producer
         public Task OfferRejectedAsync(OfferRejectedDto offer)
             => PublishAsync(OfferKafkaEvents.OfferRejected, offer);
         public Task OfferCancelledAsync(OfferCancelledDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferRejected, offer);
+            => PublishAsync(OfferKafkaEvents.OfferCancelled, offer);
         public Task OfferUpdatedAsync(OfferUpdatedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferRejected, offer);
+            => PublishAsync(OfferKafkaEvents.OfferUpdated, offer);
 
         private async Task PublishAsync<T>(string eventName, T offerDto)
         {

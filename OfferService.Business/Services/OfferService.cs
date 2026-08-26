@@ -16,13 +16,15 @@ namespace OfferService.Business.Services
         private readonly IPropertyClient propertyClient;
         private readonly IOfferEventPublisher eventPublisher;
         private readonly IMapper mapper;
+        private readonly IMapper mapperEvent;
 
-        public OfferService(IOfferRepository repository, IMapper mapper, IPropertyClient propertyClient, IOfferEventPublisher eventPublisher)
+        public OfferService(IOfferRepository repository, IMapper mapper, IPropertyClient propertyClient, IOfferEventPublisher eventPublisher, IMapper mapperEvent)
         {
             this.repository = repository;
             this.mapper = mapper;
             this.propertyClient = propertyClient;
             this.eventPublisher = eventPublisher;
+            this.mapperEvent = mapperEvent;
         }
 
         public async Task AddAsync(CreateOfferDto offerDto, int userId)
@@ -37,7 +39,7 @@ namespace OfferService.Business.Services
             o.Status = OfferStatus.Pending;
             await repository.AddAsync(o);
 
-            OfferCreatedDto offerCreatedDto = mapper.Map<OfferCreatedDto>(o);
+            OfferCreatedDto offerCreatedDto = mapperEvent.Map<OfferCreatedDto>(o);
             await eventPublisher.OfferCreatedAsync(offerCreatedDto);
         }
 
@@ -47,7 +49,7 @@ namespace OfferService.Business.Services
             if(o.OfferId != userId) throw new UnauthorizedAccessException("Non hai i permessi per eliminare questa offerta.");
             await repository.DeleteAsync(id);
 
-            OfferCancelledDto offerCancelledDto = mapper.Map<OfferCancelledDto>(o);
+            OfferCancelledDto offerCancelledDto = mapperEvent.Map<OfferCancelledDto>(o);
             await eventPublisher.OfferCancelledAsync(offerCancelledDto);
         }
 
@@ -77,7 +79,7 @@ namespace OfferService.Business.Services
             mapper.Map(offerDto, o);
             await repository.UpdateAsync(o);
 
-            OfferUpdatedDto offerUpdatedDto = mapper.Map<OfferUpdatedDto>(o);
+            OfferUpdatedDto offerUpdatedDto = mapperEvent.Map<OfferUpdatedDto>(o);
             await eventPublisher.OfferUpdatedAsync(offerUpdatedDto);
         }
         public async Task AcceptOfferAsync(int offerId, int userId)
@@ -100,7 +102,7 @@ namespace OfferService.Business.Services
                 }
             }
 
-            OfferAcceptedDto offerAcceptedDto = mapper.Map<OfferAcceptedDto>(o);
+            OfferAcceptedDto offerAcceptedDto = mapperEvent.Map<OfferAcceptedDto>(o);
             await eventPublisher.OfferAcceptedAsync(offerAcceptedDto);
         }
         public async Task RejectOfferAsync(int offerId, int userId)
@@ -112,7 +114,7 @@ namespace OfferService.Business.Services
             o.Status = OfferStatus.Rejected;
             await repository.UpdateAsync(o);
 
-            OfferRejectedDto offerRejectedDto = mapper.Map<OfferRejectedDto>(o);
+            OfferRejectedDto offerRejectedDto = mapperEvent.Map<OfferRejectedDto>(o);
             await eventPublisher.OfferRejectedAsync(offerRejectedDto);
         }
         private async Task CheckExpired(Offer o)
