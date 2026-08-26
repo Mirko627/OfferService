@@ -38,6 +38,10 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<OfferMapper>();
 });
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<OfferEventMapper>();
+});
 builder.Services.AddAuthentication(options =>
 {
     // Impostiamo JWT come schema predefinito
