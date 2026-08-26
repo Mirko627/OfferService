@@ -5,6 +5,7 @@ using OfferService.Kafka.Events;
 using OfferService.Kafka.Topics;
 using System.Text.Json;
 using Utility.Kafka.Abstractions.Clients;
+using Utility.Kafka.Messages;
 
 namespace OfferService.Kafka.Producer
 {
@@ -22,23 +23,34 @@ namespace OfferService.Kafka.Producer
         }
 
         public Task OfferCreatedAsync(OfferCreatedDto offer)
-        => PublishAsync(OfferKafkaEvents.OfferCreated, offer);
+            => PublishAsync(OfferKafkaEvents.OfferCreated, offer);
 
         public Task OfferAcceptedAsync(OfferAcceptedDto offer)
             => PublishAsync(OfferKafkaEvents.OfferAccepted, offer);
 
         public Task OfferRejectedAsync(OfferRejectedDto offer)
             => PublishAsync(OfferKafkaEvents.OfferRejected, offer);
+
         public Task OfferCancelledAsync(OfferCancelledDto offer)
             => PublishAsync(OfferKafkaEvents.OfferCancelled, offer);
+
         public Task OfferUpdatedAsync(OfferUpdatedDto offer)
             => PublishAsync(OfferKafkaEvents.OfferUpdated, offer);
 
         private async Task PublishAsync<T>(string eventName, T offerDto)
         {
-            string json = JsonSerializer.Serialize(offerDto);
+            var operationMessage = new OperationMessage<T>
+            {
+                Operation = eventName,
+                Dto = offerDto
+            };
 
-            await _producerClient.ProduceAsync(_topics.OfferEvents,eventName,json);
+            string json = JsonSerializer.Serialize(operationMessage);
+
+            await _producerClient.ProduceAsync(
+                _topics.OfferEvents,
+                eventName,
+                json);
         }
     }
 }
