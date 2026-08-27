@@ -30,7 +30,7 @@ namespace OfferService.Business.Services
         public async Task AddAsync(CreateOfferDto offerDto, int userId)
         {
             PropertyDto p = await propertyClient.GetByIdAsync(offerDto.PropertyId) ?? throw new KeyNotFoundException($"Proprietà con ID {offerDto.PropertyId} non trovata.");
-            if (p.Status == PropertyService.Shared.enums.PropertyStatus.Sold) throw new InvalidOperationException("La proprietà non è più disponibile");
+            if (p.Status != PropertyService.Shared.enums.PropertyStatus.Available) throw new InvalidOperationException("La proprietà non è più disponibile");
             if (p.OwnerId == userId) throw new InvalidOperationException("Non è possibile fare un offerta per una propria proprietà");
             Offer o = mapper.Map<Offer>(offerDto);
             o.OfferId = userId;
