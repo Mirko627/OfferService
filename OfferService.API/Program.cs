@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using NotificationService.API.middlewares;
+using OfferService.API.middlewares;
 using OfferService.Business.Interfaces;
 using OfferService.Business.Mappers;
 using OfferService.Data.Context;
