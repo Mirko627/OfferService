@@ -11,6 +11,10 @@ namespace OfferService.Kafka.Producer
 {
     public class OfferEventPublisher : IOfferEventPublisher
     {
+        private const string Insert = "I";
+        private const string Update = "U";
+        private const string Delete = "D";
+        
         private readonly IProducerClient<string, string> _producerClient;
         private readonly OfferServiceTopicsOutput _topics;
 
@@ -23,25 +27,25 @@ namespace OfferService.Kafka.Producer
         }
 
         public Task OfferCreatedAsync(OfferCreatedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferCreated, offer);
+            => PublishAsync(OfferKafkaEvents.OfferCreated, Insert, offer);
 
         public Task OfferAcceptedAsync(OfferAcceptedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferAccepted, offer);
+            => PublishAsync(OfferKafkaEvents.OfferAccepted, Insert, offer);
 
         public Task OfferRejectedAsync(OfferRejectedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferRejected, offer);
+            => PublishAsync(OfferKafkaEvents.OfferRejected, Insert, offer);
 
         public Task OfferCancelledAsync(OfferCancelledDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferCancelled, offer);
+            => PublishAsync(OfferKafkaEvents.OfferCancelled, Insert, offer);
 
         public Task OfferUpdatedAsync(OfferUpdatedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferUpdated, offer);
+            => PublishAsync(OfferKafkaEvents.OfferUpdated, Insert, offer);
 
-        private async Task PublishAsync<T>(string eventName, T offerDto)
+        private async Task PublishAsync<T>(string kafkaKey, string crudOperation, T offerDto)
         {
             var operationMessage = new OperationMessage<T>
             {
-                Operation = eventName,
+                Operation = crudOperation,
                 Dto = offerDto
             };
 
@@ -49,7 +53,7 @@ namespace OfferService.Kafka.Producer
 
             await _producerClient.ProduceAsync(
                 _topics.OfferEvents,
-                eventName,
+                kafkaKey,
                 json);
         }
     }
