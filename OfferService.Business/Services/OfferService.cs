@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using OfferService.Business.Interfaces;
-using OfferService.Kafka.Contracts;
+using OfferService.Kafka.Producer;
 using OfferService.Repository.Entities;
 using OfferService.Repository.Interfaces;
 using OfferService.Shared.dtos;
 using OfferService.Shared.enums;
+using OfferService.Shared.Kafka.Contracts;
 using PropertyService.ClientHttp.Interfaces;
 using PropertyService.Shared.dtos;
 

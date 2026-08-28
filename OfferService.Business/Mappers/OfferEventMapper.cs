@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using OfferService.Repository.Entities;
-using OfferService.Kafka.Contracts;
+using OfferService.Shared.Kafka.Contracts;
 
 namespace OfferService.Business.Mappers
 {

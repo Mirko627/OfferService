@@ -1,6 +1,6 @@
-﻿using OfferService.Kafka.Contracts;
+﻿using OfferService.Shared.Kafka.Contracts;
 
-namespace OfferService.Business.Interfaces
+namespace OfferService.Kafka.Producer
 {
     public interface IOfferEventPublisher
     {

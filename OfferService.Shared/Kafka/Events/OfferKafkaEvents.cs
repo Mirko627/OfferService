@@ -1,5 +1,5 @@
 ﻿//Contiene il nome degli eventi pubblicati da OfferService
-namespace OfferService.Kafka.Events;
+namespace OfferService.Shared.Kafka.Events;
 
 public static class OfferKafkaEvents
 {

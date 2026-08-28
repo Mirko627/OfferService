@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
-using OfferService.Business.Interfaces;
-using OfferService.Kafka.Contracts;
-using OfferService.Kafka.Events;
+using OfferService.Shared.Kafka.Contracts;
 using OfferService.Kafka.Topics;
+using OfferService.Shared.Kafka.Events;
 using System.Text.Json;
 using Utility.Kafka.Abstractions.Clients;
 using Utility.Kafka.Messages;

@@ -1,6 +1,6 @@
-﻿namespace OfferService.Kafka.Contracts
+﻿namespace OfferService.Shared.Kafka.Contracts
 {
-    public class OfferRejectedDto
+    public class OfferUpdatedDto
     {
         public int OfferId { get; set; }
         public int PropertyId { get; set; }
