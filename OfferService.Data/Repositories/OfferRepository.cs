@@ -62,5 +62,15 @@ namespace OfferService.Data.Repositories
         {
             return await _context.Offers.Where(o => (o.PropertyId == propertyId && o.Id != id)).ToListAsync();
         }
+
+        public async Task UpdateManyAsync(IEnumerable<Offer> offers, IEnumerable<OutboxEvent>? outboxEvents = null)
+        {
+            _context.Offers.UpdateRange(offers);
+
+            if (outboxEvents != null)
+                await _context.OutboxEvents.AddRangeAsync(outboxEvents);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

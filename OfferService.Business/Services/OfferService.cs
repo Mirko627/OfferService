@@ -103,16 +103,23 @@ namespace OfferService.Business.Services
 
             OutboxEvent outboxEvent = eventPublisher.CreateOfferAcceptedEvent(offerAcceptedDto);
 
-            await repository.UpdateAsync(o, outboxEvent);
 
             List<Offer> otherOffers = await repository.GetOtherOffersByPropertyAsync(o.PropertyId, o.Id);
+
+            List<Offer> offersToUpdate = new List<Offer> { o };
+            List<OutboxEvent> outboxEvents = new List<OutboxEvent> { outboxEvent };
+
             foreach (Offer other in otherOffers)
             {
-                if(other.Status == OfferStatus.Pending)
-                {
-                    await RejectOfferAsync(other.OfferId, userId);
-                }
+                if (other.Status != OfferStatus.Pending)
+                    continue;
+                other.Status = OfferStatus.Rejected;
+                OfferRejectedDto rejectedDto = mapperEvent.Map<OfferRejectedDto>(other);
+                OutboxEvent rejectedOutboxEvent = eventPublisher.CreateOfferRejectedEvent(rejectedDto);
+                offersToUpdate.Add(other);
+                outboxEvents.Add(rejectedOutboxEvent);
             }
+            await repository.UpdateManyAsync(offersToUpdate, outboxEvents);
         }
         public async Task RejectOfferAsync(int offerId, int userId)
         {

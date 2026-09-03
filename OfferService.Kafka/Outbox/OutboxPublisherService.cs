@@ -21,6 +21,8 @@ namespace OfferService.Kafka.Outbox
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("OutboxPublisherService avviato");
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try

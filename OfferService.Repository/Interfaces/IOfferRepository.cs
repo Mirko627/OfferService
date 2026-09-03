@@ -10,5 +10,6 @@ namespace OfferService.Repository.Interfaces
         Task UpdateAsync(Offer offer, OutboxEvent? outboxEvent = null);
         Task DeleteAsync(int id, OutboxEvent? outboxEvent = null);
         Task<List<Offer>> GetOtherOffersByPropertyAsync(int propertyId, int id);
+        Task UpdateManyAsync(IEnumerable<Offer> offers, IEnumerable<OutboxEvent>? outboxEvents = null);
     }
 }
