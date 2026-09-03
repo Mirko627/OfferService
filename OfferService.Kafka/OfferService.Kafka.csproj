@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OfferService.Data\OfferService.Data.csproj" />
     <ProjectReference Include="..\OfferService.Repository\OfferService.Repository.csproj" />
   </ItemGroup>
 

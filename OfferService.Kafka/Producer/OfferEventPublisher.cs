@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
-using OfferService.Shared.Kafka.Contracts;
 using OfferService.Kafka.Topics;
+using OfferService.Repository.Entities;
+using OfferService.Shared.Kafka.Contracts;
 using OfferService.Shared.Kafka.Events;
 using System.Text.Json;
 using Utility.Kafka.Abstractions.Clients;
@@ -25,35 +26,41 @@ namespace OfferService.Kafka.Producer
             _topics = topics.Value;
         }
 
-        public Task OfferCreatedAsync(OfferCreatedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferCreated, Insert, offer);
+        public OutboxEvent CreateOfferCreatedEvent(OfferCreatedDto offer)
+            => CreateEvent(OfferKafkaEvents.OfferCreated,Insert,offer);
 
-        public Task OfferAcceptedAsync(OfferAcceptedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferAccepted, Insert, offer);
+        public OutboxEvent CreateOfferAcceptedEvent(OfferAcceptedDto offer)
+            => CreateEvent(OfferKafkaEvents.OfferAccepted, Insert, offer);
 
-        public Task OfferRejectedAsync(OfferRejectedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferRejected, Insert, offer);
+        public OutboxEvent CreateOfferRejectedEvent(OfferRejectedDto offer)
+            => CreateEvent(OfferKafkaEvents.OfferRejected, Insert, offer);
 
-        public Task OfferCancelledAsync(OfferCancelledDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferCancelled, Insert, offer);
+        public OutboxEvent CreateOfferCancelledEvent(OfferCancelledDto offer)
+            => CreateEvent(OfferKafkaEvents.OfferCancelled, Insert, offer);
 
-        public Task OfferUpdatedAsync(OfferUpdatedDto offer)
-            => PublishAsync(OfferKafkaEvents.OfferUpdated, Insert, offer);
+        public OutboxEvent CreateOfferUpdatedEvent(OfferUpdatedDto offer)
+            => CreateEvent(OfferKafkaEvents.OfferUpdated, Insert, offer);
 
-        private async Task PublishAsync<T>(string kafkaKey, string crudOperation, T offerDto)
+        private OutboxEvent CreateEvent<T>(string eventType, string operation, T dto)
         {
             var operationMessage = new OperationMessage<T>
             {
-                Operation = crudOperation,
-                Dto = offerDto
+                Operation = operation,
+                Dto = dto
             };
 
             string json = JsonSerializer.Serialize(operationMessage);
 
-            await _producerClient.ProduceAsync(
-                _topics.OfferEvents,
-                kafkaKey,
-                json);
+            return new OutboxEvent
+            {
+                Id = Guid.NewGuid(),
+                EventType = eventType,
+                Topic = _topics.OfferEvents,
+                Key = eventType,
+                Payload = json,
+                CreatedAt = DateTime.UtcNow,
+                PublishedAt = null
+            };
         }
     }
 }

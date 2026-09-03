@@ -7,6 +7,7 @@ using OfferService.Business.Interfaces;
 using OfferService.Business.Mappers;
 using OfferService.Data.Context;
 using OfferService.Data.Repositories;
+using OfferService.Kafka.Outbox;
 using OfferService.Kafka.Producer;
 using OfferService.Kafka.Topics;
 using OfferService.Repository.Interfaces;
@@ -69,6 +70,8 @@ builder.Services.Configure<KafkaProducerClientOptions>(
 
 builder.Services.AddSingleton<IProducerClient<string, string>, ProducerClient>();
 builder.Services.AddScoped<IOfferEventPublisher, OfferEventPublisher>();
+
+builder.Services.AddHostedService<OutboxPublisherService>();
 
 // Services e repository
 builder.Services.AddScoped<IOfferService, OfferService.Business.Services.OfferService>();

@@ -6,9 +6,9 @@ namespace OfferService.Repository.Interfaces
     {
         Task<List<Offer>> GetAllAsync();
         Task<Offer?> GetByIdAsync(int id);
-        Task AddAsync(Offer offer);
-        Task UpdateAsync(Offer offer);
-        Task DeleteAsync(int id);
+        Task AddAsync(Offer offer, OutboxEvent? outboxEvent = null);
+        Task UpdateAsync(Offer offer, OutboxEvent? outboxEvent = null);
+        Task DeleteAsync(int id, OutboxEvent? outboxEvent = null);
         Task<List<Offer>> GetOtherOffersByPropertyAsync(int propertyId, int id);
     }
 }

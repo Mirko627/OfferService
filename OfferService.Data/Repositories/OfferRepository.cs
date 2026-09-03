@@ -27,24 +27,34 @@ namespace OfferService.Data.Repositories
             Offer? offer = await _context.Offers.FindAsync(id);
             return offer;
         }
-        public async Task AddAsync(Offer offer)
+        public async Task AddAsync(Offer offer, OutboxEvent? outboxEvent = null)
         {
             await _context.Offers.AddAsync(offer);
+            
+            if(outboxEvent != null)
+                await _context.OutboxEvents.AddAsync(outboxEvent);
+
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, OutboxEvent? outboxEvent = null)
         {
-            Offer? o = await GetByIdAsync(id);
-            if (o == null)
-                throw new Exception("Utente non trovato");
+            Offer o = await GetByIdAsync(id) ?? throw new Exception("Offerta non trovato");
             _context.Offers.Remove(o);
+
+            if (outboxEvent != null)
+                await _context.OutboxEvents.AddAsync(outboxEvent);
+
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Offer offer)
+        public async Task UpdateAsync(Offer offer, OutboxEvent? outboxEvent = null)
         {
             _context.Offers.Update(offer);
+            
+            if (outboxEvent != null)
+                await _context.OutboxEvents.AddAsync(outboxEvent);
+
             await _context.SaveChangesAsync();
         }
 

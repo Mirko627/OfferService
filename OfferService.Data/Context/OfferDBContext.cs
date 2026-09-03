@@ -8,7 +8,7 @@ namespace OfferService.Data.Context
     public class OfferDBContext : DbContext
     {
         public DbSet<Offer> Offers { get; set; }
-
+        public DbSet<OutboxEvent> OutboxEvents { get; set; }
         public OfferDBContext(DbContextOptions<OfferDBContext> options) : base(options)
         {
 
@@ -33,6 +33,41 @@ namespace OfferService.Data.Context
                 entity.Property(u => u.CreatedAt)
                       .HasDefaultValueSql("GETUTCDATE()");
             });
+
+            builder.Entity<OutboxEvent>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.EventType)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.Topic)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.Key)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.Payload)
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
+
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+
+                entity.Property(e => e.PublishedAt)
+                    .IsRequired(false);
+
+                entity.HasIndex(e => new { e.PublishedAt, e.CreatedAt });
+            });
+            Console.WriteLine("=== ENTITIES EF ===");
+
+            foreach (var entity in builder.Model.GetEntityTypes())
+            {
+                Console.WriteLine($"ENTITY: {entity.ClrType?.FullName}");
+            }
         }
     }
 }

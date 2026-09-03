@@ -38,20 +38,24 @@ namespace OfferService.Business.Services
             o.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
             o.ExpirateDate = (DateOnly.FromDateTime(DateTime.Now)).AddDays(30);
             o.Status = OfferStatus.Pending;
-            await repository.AddAsync(o);
 
             OfferCreatedDto offerCreatedDto = mapperEvent.Map<OfferCreatedDto>(o);
-            await eventPublisher.OfferCreatedAsync(offerCreatedDto);
+
+            OutboxEvent outboxEvent = eventPublisher.CreateOfferCreatedEvent(offerCreatedDto);
+
+            await repository.AddAsync(o, outboxEvent);
         }
 
         public async Task DeleteAsync(int id, int userId)
         {
             Offer o = await repository.GetByIdAsync(id) ?? throw new KeyNotFoundException($"Offerta con ID {id} non trovata.");
             if(o.OfferId != userId) throw new UnauthorizedAccessException("Non hai i permessi per eliminare questa offerta.");
-            await repository.DeleteAsync(id);
 
             OfferCancelledDto offerCancelledDto = mapperEvent.Map<OfferCancelledDto>(o);
-            await eventPublisher.OfferCancelledAsync(offerCancelledDto);
+            
+            OutboxEvent outboxEvent = eventPublisher.CreateOfferCancelledEvent(offerCancelledDto);
+
+            await repository.DeleteAsync(id, outboxEvent);
         }
 
         public async Task<List<OfferDto>> GetAllAsync()
@@ -78,10 +82,12 @@ namespace OfferService.Business.Services
             if (o.OfferId != userId) throw new UnauthorizedAccessException("Non hai i permessi per modificare questa offerta.");
             await CheckExpired(o);
             mapper.Map(offerDto, o);
-            await repository.UpdateAsync(o);
 
             OfferUpdatedDto offerUpdatedDto = mapperEvent.Map<OfferUpdatedDto>(o);
-            await eventPublisher.OfferUpdatedAsync(offerUpdatedDto);
+            
+            OutboxEvent outboxEvent = eventPublisher.CreateOfferUpdatedEvent(offerUpdatedDto);
+
+            await repository.UpdateAsync(o, outboxEvent);
         }
         public async Task AcceptOfferAsync(int offerId, int userId)
         {
@@ -92,19 +98,21 @@ namespace OfferService.Business.Services
             if (property.Status == PropertyService.Shared.enums.PropertyStatus.Sold) throw new InvalidOperationException("La proprietà non è più disponibile");
             if (o.Status != OfferStatus.Pending) throw new InvalidOperationException("L'offerta non è più disponibile");
             o.Status = OfferStatus.Accepted;
-            await repository.UpdateAsync(o);
+
+            OfferAcceptedDto offerAcceptedDto = mapperEvent.Map<OfferAcceptedDto>(o);
+
+            OutboxEvent outboxEvent = eventPublisher.CreateOfferAcceptedEvent(offerAcceptedDto);
+
+            await repository.UpdateAsync(o, outboxEvent);
+
             List<Offer> otherOffers = await repository.GetOtherOffersByPropertyAsync(o.PropertyId, o.Id);
             foreach (Offer other in otherOffers)
             {
                 if(other.Status == OfferStatus.Pending)
                 {
-                    other.Status = OfferStatus.Expired;
-                    await repository.UpdateAsync(other);
+                    await RejectOfferAsync(other.OfferId, userId);
                 }
             }
-
-            OfferAcceptedDto offerAcceptedDto = mapperEvent.Map<OfferAcceptedDto>(o);
-            await eventPublisher.OfferAcceptedAsync(offerAcceptedDto);
         }
         public async Task RejectOfferAsync(int offerId, int userId)
         {
@@ -113,10 +121,12 @@ namespace OfferService.Business.Services
             PropertyDto property = await propertyClient.GetByIdAsync(o.PropertyId) ?? throw new KeyNotFoundException($"Proprietà con ID {o.PropertyId} non trovata.");
             if (property.OwnerId != userId) throw new UnauthorizedAccessException("Non hai i permessi per modificare questa offerta.");
             o.Status = OfferStatus.Rejected;
-            await repository.UpdateAsync(o);
 
             OfferRejectedDto offerRejectedDto = mapperEvent.Map<OfferRejectedDto>(o);
-            await eventPublisher.OfferRejectedAsync(offerRejectedDto);
+
+            OutboxEvent outboxEvent = eventPublisher.CreateOfferRejectedEvent(offerRejectedDto);
+
+            await repository.UpdateAsync(o, outboxEvent);
         }
         private async Task CheckExpired(Offer o)
         {
