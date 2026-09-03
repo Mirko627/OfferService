@@ -62,12 +62,6 @@ namespace OfferService.Data.Context
 
                 entity.HasIndex(e => new { e.PublishedAt, e.CreatedAt });
             });
-            Console.WriteLine("=== ENTITIES EF ===");
-
-            foreach (var entity in builder.Model.GetEntityTypes())
-            {
-                Console.WriteLine($"ENTITY: {entity.ClrType?.FullName}");
-            }
         }
     }
 }
