@@ -16,61 +16,61 @@ namespace OfferService.Data.Repositories
             _context = context;
         }
 
-        public async Task<List<Offer>> GetAllAsync()
+        public async Task<List<Offer>> GetAllAsync(CancellationToken ct = default)
         {
-            List<Offer> offers = await _context.Offers.ToListAsync();
+            List<Offer> offers = await _context.Offers.ToListAsync(ct);
             return offers;
         }
 
-        public async Task<Offer?> GetByIdAsync(int id)
+        public async Task<Offer?> GetByIdAsync(int id, CancellationToken ct = default)
         {
-            Offer? offer = await _context.Offers.FindAsync(id);
+            Offer? offer = await _context.Offers.FindAsync(id, ct);
             return offer;
         }
-        public async Task AddAsync(Offer offer, OutboxEvent? outboxEvent = null)
+        public async Task AddAsync(Offer offer, OutboxEvent? outboxEvent = null, CancellationToken ct = default)
         {
-            await _context.Offers.AddAsync(offer);
+            await _context.Offers.AddAsync(offer, ct);
             
             if(outboxEvent != null)
-                await _context.OutboxEvents.AddAsync(outboxEvent);
+                await _context.OutboxEvents.AddAsync(outboxEvent, ct);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task DeleteAsync(int id, OutboxEvent? outboxEvent = null)
+        public async Task DeleteAsync(int id, OutboxEvent? outboxEvent = null, CancellationToken ct = default)
         {
-            Offer o = await GetByIdAsync(id) ?? throw new Exception("Offerta non trovato");
+            Offer o = await GetByIdAsync(id, ct) ?? throw new Exception("Offerta non trovato");
             _context.Offers.Remove(o);
 
             if (outboxEvent != null)
-                await _context.OutboxEvents.AddAsync(outboxEvent);
+                await _context.OutboxEvents.AddAsync(outboxEvent, ct);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task UpdateAsync(Offer offer, OutboxEvent? outboxEvent = null)
+        public async Task UpdateAsync(Offer offer, OutboxEvent? outboxEvent = null, CancellationToken ct = default)
         {
             _context.Offers.Update(offer);
             
             if (outboxEvent != null)
-                await _context.OutboxEvents.AddAsync(outboxEvent);
+                await _context.OutboxEvents.AddAsync(outboxEvent, ct);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task<List<Offer>> GetOtherOffersByPropertyAsync(int propertyId, int id)
+        public async Task<List<Offer>> GetOtherOffersByPropertyAsync(int propertyId, int id, CancellationToken ct = default)
         {
-            return await _context.Offers.Where(o => (o.PropertyId == propertyId && o.Id != id)).ToListAsync();
+            return await _context.Offers.Where(o => (o.PropertyId == propertyId && o.Id != id)).ToListAsync(ct);
         }
 
-        public async Task UpdateManyAsync(IEnumerable<Offer> offers, IEnumerable<OutboxEvent>? outboxEvents = null)
+        public async Task UpdateManyAsync(IEnumerable<Offer> offers, IEnumerable<OutboxEvent>? outboxEvents = null, CancellationToken ct = default)
         {
             _context.Offers.UpdateRange(offers);
 
             if (outboxEvents != null)
-                await _context.OutboxEvents.AddRangeAsync(outboxEvents);
+                await _context.OutboxEvents.AddRangeAsync(outboxEvents, ct);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
     }
 }

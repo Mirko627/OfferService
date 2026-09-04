@@ -4,12 +4,12 @@ namespace OfferService.ClientHttp.Interfaces
 {
     public interface IOfferClient
     {
-        Task<List<OfferDto>> GetAllAsync();
-        Task<OfferDto?> GetByIdAsync(int id);
-        Task AddAsync(CreateOfferDto dto);
-        Task UpdateAsync(int id, UpdateOfferDto dto);
-        Task DeleteAsync(int id);
-        Task AcceptAsync(int id);
-        Task RejectAsync(int id);
+        Task<List<OfferDto>> GetAllAsync(CancellationToken ct = default);
+        Task<OfferDto?> GetByIdAsync(int id, CancellationToken ct = default);
+        Task AddAsync(CreateOfferDto dto, CancellationToken ct = default);
+        Task UpdateAsync(int id, UpdateOfferDto dto, CancellationToken ct = default);
+        Task DeleteAsync(int id, CancellationToken ct = default);
+        Task AcceptAsync(int id, CancellationToken ct = default);
+        Task RejectAsync(int id, CancellationToken ct = default);
     }
 }

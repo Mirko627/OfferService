@@ -16,73 +16,73 @@ namespace OfferService.ClientHttp.Clients
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<List<OfferDto>> GetAllAsync()
+        public async Task<List<OfferDto>> GetAllAsync(CancellationToken ct = default)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "api/offer");
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<OfferDto>>() ?? [];
+            return await response.Content.ReadFromJsonAsync<List<OfferDto>>(ct) ?? [];
         }
 
-        public async Task<OfferDto?> GetByIdAsync(int id)
+        public async Task<OfferDto?> GetByIdAsync(int id, CancellationToken ct = default)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/offer/{id}");
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
 
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<OfferDto>();
+            return await response.Content.ReadFromJsonAsync<OfferDto>(ct);
         }
 
-        public async Task AddAsync(CreateOfferDto dto)
+        public async Task AddAsync(CreateOfferDto dto, CancellationToken ct = default)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "api/offer");
             request.Content = JsonContent.Create(dto);
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task UpdateAsync(int id, UpdateOfferDto dto)
+        public async Task UpdateAsync(int id, UpdateOfferDto dto, CancellationToken ct = default)
         {
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/offer/{id}");
             request.Content = JsonContent.Create(dto);
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, CancellationToken ct = default)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"api/offer/{id}");
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task AcceptAsync(int id)
+        public async Task AcceptAsync(int id, CancellationToken ct = default)
         {
             var request = new HttpRequestMessage(HttpMethod.Patch, $"api/offer/{id}/accept");
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task RejectAsync(int id)
+        public async Task RejectAsync(int id, CancellationToken ct = default)
         {
             var request = new HttpRequestMessage(HttpMethod.Patch, $"api/offer/{id}/reject");
             AddAuthorizationHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, ct);
             response.EnsureSuccessStatusCode();
         }
         private void AddAuthorizationHeader(HttpRequestMessage request)
