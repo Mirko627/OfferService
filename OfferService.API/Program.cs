@@ -14,7 +14,6 @@ using OfferService.Repository.Interfaces;
 using PropertyService.ClientHttp.Clients;
 using PropertyService.ClientHttp.Interfaces;
 using System.Text;
-using System.Text.Json.Serialization;
 using Utility.Kafka.Abstractions.Clients;
 using Utility.Kafka.Clients;
 
@@ -80,12 +79,7 @@ builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 
 
 // Controllers
-builder.Services.AddControllers().AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(
-            new JsonStringEnumConverter()
-        );
-    });
+builder.Services.AddControllers();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
