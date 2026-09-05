@@ -157,6 +157,9 @@ L'Offer Service utilizza il Property Service per:
 | offer-events | OfferCreated  | Notifica la creazione di una nuova offerta |
 | offer-events | OfferAccepted | Notifica l'accettazione di un'offerta      |
 | offer-events | OfferRejected | Notifica il rifiuto di un'offerta          |
+| offer-events | OfferUpdated | Notifica l'aggiornamento di un'offerta          |
+| offer-events | OfferCancelled | Notifica la cancellazione di un'offerta          |
+
 
 ## Controlli automatici
 
